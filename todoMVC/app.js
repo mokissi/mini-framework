@@ -11,12 +11,12 @@ const [getEditing, setEditing] = useState("editing", null);
 
 // Helper function to re-render
 function update() {
-  const appContainer = document.getElementById("app");
+  const appContainer = document.getElementById("root");
   renderApp(App, appContainer);
 }
 
 // Header component - handles the title and new todo input
-function renderHeader() {
+export function renderHeader() {
   return {
     type: "header",
     props: { class: "header" },
@@ -53,8 +53,8 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
 
   return [
     {
-      type: "section",
-      props: { class: "main" },
+      type: "div",
+      props: { class: "toggle-all-container" },
       children: [
         {
           type: "input",
@@ -145,34 +145,34 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
                 },
                 ...(editing === realIdx
                   ? [
-                      {
-                        type: "input",
-                        props: {
-                          class: "edit",
-                          value: task.text,
-                          onblur: (e) => {
-                            const newText = e.target.value.trim();
-                            if (newText) {
-                              const newTasks = [...tasks];
-                              newTasks[realIdx].text = newText;
-                              setTasks(newTasks);
-                            } else {
-                              // Delete if empty
-                              const newTasks = tasks.filter((_, i) => i !== realIdx);
-                              setTasks(newTasks);
-                            }
-                            setEditing(null);
-                            update();
-                          },
-                          onkeydown: (e) => {
-                            if (e.key === "Enter") {
-                              e.target.blur();
-                            }
+                    {
+                      type: "input",
+                      props: {
+                        class: "edit",
+                        value: task.text,
+                        onblur: (e) => {
+                          const newText = e.target.value.trim();
+                          if (newText) {
+                            const newTasks = [...tasks];
+                            newTasks[realIdx].text = newText;
+                            setTasks(newTasks);
+                          } else {
+                            // Delete if empty
+                            const newTasks = tasks.filter((_, i) => i !== realIdx);
+                            setTasks(newTasks);
                           }
+                          setEditing(null);
+                          update();
                         },
-                        children: []
-                      }
-                    ]
+                        onkeydown: (e) => {
+                          if (e.key === "Enter") {
+                            e.target.blur();
+                          }
+                        }
+                      },
+                      children: []
+                    }
+                  ]
                   : [])
               ]
             };
@@ -274,12 +274,12 @@ function App() {
   // --- Sync filter with route ---
   const route = useRoute();
   let filter = getFilter();
-  
+
   // Update filter based on route
   let newFilter = "all";
   if (route === "/active") newFilter = "active";
   if (route === "/completed") newFilter = "completed";
-  
+
   if (filter !== newFilter) {
     setFilter(newFilter);
     filter = newFilter;
@@ -289,7 +289,7 @@ function App() {
   const editing = getEditing();
 
   setInput(getInput());
-  
+
   // Filter tasks
   const visibleTasks = tasks.filter((t) => {
     if (filter === "active") return !t.completed;
@@ -300,10 +300,10 @@ function App() {
   const remaining = tasks.filter((t) => !t.completed).length;
 
   return {
-    type: "section",
-    props: { class: "todoapp" },
+    type: "main",
+    props: { class: "main" },
     children: [
-      renderHeader(),
+      // renderHeader(),
       ...renderMainSection(tasks, visibleTasks, editing, filter),
       ...(tasks.length > 0 ? [renderFooter(remaining, filter, tasks)] : [])
     ]
@@ -311,7 +311,7 @@ function App() {
 }
 
 // Initialize app
-const appContainer = document.getElementById("app");
+const appContainer = document.getElementById("root");
 initRouter();
 onRouteChange(() => renderApp(App, appContainer));
 renderApp(App, appContainer);
