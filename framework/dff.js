@@ -1,6 +1,3 @@
-let currentVDOM = null;
-let rootElement = null;
-
 export function createElement(vnode) {
   if (typeof vnode === "string") {
     return document.createTextNode(vnode);
@@ -37,7 +34,7 @@ export function createElement(vnode) {
   return el;
 }
 
-function isSameType(oldNode, newNode) {
+export function isSameType(oldNode, newNode) {
   if (typeof oldNode !== typeof newNode) return false;
   if (typeof oldNode === "string") return true;
   return oldNode.type === newNode.type;

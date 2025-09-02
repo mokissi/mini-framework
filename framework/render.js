@@ -1,5 +1,6 @@
-import { createElement, updateProps, diffChildren } from "./dff.js";
-
+import { createElement, updateProps, diffChildren, isSameType } from "./dff.js";
+let currentVDOM = null;
+let rootElement = null;
 export function renderApp(component, appContainer) {
   const newVDOM = component();
 
