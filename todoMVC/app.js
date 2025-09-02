@@ -22,10 +22,11 @@ export function renderHeader() {
     props: { class: "header" },
     children: [
       { type: "h1", props: {}, children: ["todos"] },
-      {
+      { type: "div", props: {class: "input-container"}, children: [{
         type: "input",
         props: {
           class: "new-todo",
+          id: "todo-input",
           placeholder: "What needs to be done?",
           autofocus: true,
           value: getInput(),
@@ -42,7 +43,8 @@ export function renderHeader() {
           }
         },
         children: []
-      }
+      }] },
+      
     ]
   };
 }
