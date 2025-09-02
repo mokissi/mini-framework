@@ -309,3 +309,9 @@ function App() {
     ]
   };
 }
+
+// Initialize app
+const appContainer = document.getElementById("app");
+initRouter();
+onRouteChange(() => renderApp(App, appContainer));
+renderApp(App, appContainer);
