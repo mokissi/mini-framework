@@ -182,3 +182,130 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
     }
   ];
 }
+
+
+// Footer component - handles filters, item count, and clear completed button
+function renderFooter(remaining, filter, tasks) {
+  return {
+    type: "footer",
+    props: { class: "footer" },
+    children: [
+      {
+        type: "span",
+        props: { class: "todo-count" },
+        children: [
+          `${remaining} item${remaining !== 1 ? "s" : ""} left`
+        ]
+      },
+      {
+        type: "ul",
+        props: { class: "filters" },
+        children: [
+          {
+            type: "li",
+            children: [
+              {
+                type: "a",
+                props: {
+                  class: filter === "all" ? "selected" : "",
+                  href: "#/",
+                  onclick: (e) => {
+                    e.preventDefault();
+                    navigate("/");
+                  }
+                },
+                children: ["All"]
+              }
+            ]
+          },
+          {
+            type: "li",
+            children: [
+              {
+                type: "a",
+                props: {
+                  class: filter === "active" ? "selected" : "",
+                  href: "#/active",
+                  onclick: (e) => {
+                    e.preventDefault();
+                    navigate("/active");
+                  }
+                },
+                children: ["Active"]
+              }
+            ]
+          },
+          {
+            type: "li",
+            children: [
+              {
+                type: "a",
+                props: {
+                  class: filter === "completed" ? "selected" : "",
+                  href: "#/completed",
+                  onclick: (e) => {
+                    e.preventDefault();
+                    navigate("/completed");
+                  }
+                },
+                children: ["Completed"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        type: "button",
+        props: {
+          class: "clear-completed",
+          onclick: () => {
+            setTasks(tasks.filter((t) => !t.completed));
+            update();
+          }
+        },
+        children: ["Clear completed"]
+      }
+    ]
+  };
+}
+
+// Main App function - now much cleaner and focused on coordination
+function App() {
+  // --- Sync filter with route ---
+  const route = useRoute();
+  let filter = getFilter();
+  
+  // Update filter based on route
+  let newFilter = "all";
+  if (route === "/active") newFilter = "active";
+  if (route === "/completed") newFilter = "completed";
+  
+  if (filter !== newFilter) {
+    setFilter(newFilter);
+    filter = newFilter;
+  }
+
+  const tasks = getTasks();
+  const editing = getEditing();
+
+  setInput(getInput());
+  
+  // Filter tasks
+  const visibleTasks = tasks.filter((t) => {
+    if (filter === "active") return !t.completed;
+    if (filter === "completed") return t.completed;
+    return true;
+  });
+
+  const remaining = tasks.filter((t) => !t.completed).length;
+
+  return {
+    type: "section",
+    props: { class: "todoapp" },
+    children: [
+      renderHeader(),
+      ...renderMainSection(tasks, visibleTasks, editing, filter),
+      ...(tasks.length > 0 ? [renderFooter(remaining, filter, tasks)] : [])
+    ]
+  };
+}
