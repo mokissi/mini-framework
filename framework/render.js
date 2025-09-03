@@ -1,19 +1,19 @@
-import { renderHeader } from "../todoMVC/app.js";
+
 import { createElement, updateProps, diffChildren, isSameType } from "./dff.js";
+
 let currentVDOM = null;
 let rootElement = null;
+
+
+
 export function renderApp(component, appContainer) {
-  let newVDOM = component();
-  // let newVDOM = renderHeader();
-  // console.log("-------", renderHeader());
-  // console.log("2222222222", component());
+  const newVDOM = component();
 
   if (!currentVDOM || !rootElement) {
     // First render
-    appContainer.innerHTML = "";
-    const header = createElement(renderHeader())
+    // appContainer.innerHTML = "";
     rootElement = createElement(newVDOM);
-    appContainer.append(header, rootElement);
+    appContainer.appendChild(rootElement);
   } else {
     // Diff and update
     if (isSameType(currentVDOM, newVDOM)) {
@@ -26,6 +26,6 @@ export function renderApp(component, appContainer) {
       rootElement = newRoot;
     }
   }
-
+  
   currentVDOM = newVDOM;
 }

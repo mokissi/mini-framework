@@ -11,7 +11,7 @@ const [getEditing, setEditing] = useState("editing", null);
 
 // Helper function to re-render
 function update() {
-  const appContainer = document.getElementById("root");
+  const appContainer = document.body;
   renderApp(App, appContainer);
 }
 
@@ -19,69 +19,95 @@ function update() {
 export function renderHeader() {
   return {
     type: "header",
-    props: { class: "header" },
+    props: { class: "header", "data-testid": "header" },
     children: [
       { type: "h1", props: {}, children: ["todos"] },
-      { type: "div", props: {class: "input-container"}, children: [{
-        type: "input",
-        props: {
-          class: "new-todo",
-          id: "todo-input",
-          placeholder: "What needs to be done?",
-          autofocus: true,
-          value: getInput(),
-          oninput: (e) => setInput(e.target.value),
-          onkeydown: (e) => {
-            if (e.key === "Enter" && getInput().trim().length >= 2) {
-              setTasks([
-                ...getTasks(),
-                { id: Date.now(), text: getInput().trim(), completed: false }
-              ]);
-              setInput("");
-              update();
-            }
+      { 
+        type: "div", 
+        props: { class: "input-container" }, 
+        children: [
+          {
+            type: "input",
+            props: {
+              class: "new-todo",
+              id: "todo-input",
+              type: "text",
+              "data-testid": "text-input",
+              placeholder: "What needs to be done?",
+              autofocus: true,
+              value: getInput(),
+              oninput: (e) => setInput(e.target.value),
+              onkeydown: (e) => {
+                if (e.key === "Enter" && getInput().trim().length >= 2) {
+                  setTasks([
+                    ...getTasks(),
+                    { id: Date.now(), text: getInput().trim(), completed: false }
+                  ]);
+                  setInput("");
+                  update();
+                }
+              }
+            },
+            children: []
+          },
+          {
+            type: "label",
+            props: {
+              class: "visually-hidden",
+              for: "todo-input"
+            },
+            children: ["New Todo Input"]
           }
-        },
-        children: []
-      }] },
-      
+        ]
+      }
     ]
   };
 }
 
 // Main section component - handles the todo list and toggle all functionality
 function renderMainSection(tasks, visibleTasks, editing, filter) {
-  if (tasks.length === 0) return [];
-
-  return [
-    {
-      type: "div",
-      props: { class: "toggle-all-container" },
-      children: [
-        {
-          type: "input",
-          props: {
-            id: "toggle-all",
-            class: "toggle-all",
-            type: "checkbox",
-            checked: tasks.every((t) => t.completed),
-            onchange: () => {
-              const allDone = tasks.every((t) => t.completed);
-              setTasks(tasks.map((t) => ({ ...t, completed: !allDone })));
-              update();
+  return {
+    type: "main",
+    props: { class: "main", "data-testid": "main" },
+    children: [
+      ...(tasks.length > 0 ? [
+            {
+              type: "div",
+              props: { class: "toggle-all-container" },
+              children: [
+                {
+                  type: "input",
+                  props: {
+                    class: "toggle-all",
+                    type: "checkbox",
+                    id: "toggle-all",
+                    "data-testid": "toggle-all",
+                    checked: tasks.every((t) => t.completed),
+                    onchange: () => {
+                      const allDone = tasks.every((t) => t.completed);
+                      setTasks(tasks.map((t) => ({ ...t, completed: !allDone })));
+                      update();
+                    }
+                  },
+                  children: []
+                },
+                {
+                  type: "label",
+                  props: { class:"toggle-all-label",  for: "toggle-all" },
+                  children: ["Mark all as complete"]
+                }
+              ]
             }
-          },
-          children: []
-        },
-        {
-          type: "label",
-          props: { for: "toggle-all" },
-          children: ["Mark all as complete"]
-        },
-        {
-          type: "ul",
-          props: { class: "todo-list" },
-          children: visibleTasks.map((task, idx) => {
+          ] : []),
+      // Always render the ul element, even when empty
+      {
+        type: "ul",
+        props: { class: "todo-list", "data-testid": "todo-list" },
+        children: tasks.length === 0 ? [] : [
+          // Toggle all checkbox and label (only show when there are tasks)
+          
+          // Actual todo items
+          ...visibleTasks.map((task, idx) => {
             const realIdx = tasks.indexOf(task);
 
             return {
@@ -91,7 +117,8 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
                 class: [
                   task.completed ? "completed" : "",
                   editing === realIdx ? "editing" : ""
-                ].filter(Boolean).join(" ")
+                ].filter(Boolean).join(" "),
+                "data-testid": "todo-item"
               },
               children: [
                 {
@@ -101,9 +128,10 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
                     {
                       type: "input",
                       props: {
-                        id: realIdx,
+                        // id: realIdx,
                         class: "toggle",
                         type: "checkbox",
+                        "data-testid": "todo-item-toggle",
                         checked: task.completed,
                         onchange: () => {
                           const newTasks = [...tasks];
@@ -117,6 +145,7 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
                     {
                       type: "label",
                       props: {
+                        "data-testid": "todo-item-label",
                         ondblclick: () => {
                           setEditing(realIdx);
                           update();
@@ -135,6 +164,7 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
                       type: "button",
                       props: {
                         class: "destroy",
+                        "data-testid": "todo-item-button",
                         onclick: () => {
                           const newTasks = tasks.filter((_, i) => i !== realIdx);
                           setTasks(newTasks);
@@ -179,18 +209,17 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
               ]
             };
           })
-        }
-      ]
-    }
-  ];
+        ]
+      }
+    ]
+  };
 }
-
 
 // Footer component - handles filters, item count, and clear completed button
 function renderFooter(remaining, filter, tasks) {
   return {
     type: "footer",
-    props: { class: "footer" },
+    props: { class: "footer" , "data-testid": "footer"},
     children: [
       {
         type: "span",
@@ -201,7 +230,7 @@ function renderFooter(remaining, filter, tasks) {
       },
       {
         type: "ul",
-        props: { class: "filters" },
+        props: { class: "filters" , "data-testid": "footer-navigation"},
         children: [
           {
             type: "li",
@@ -260,6 +289,7 @@ function renderFooter(remaining, filter, tasks) {
         type: "button",
         props: {
           class: "clear-completed",
+          disabled: tasks.every((t) => !t.completed),
           onclick: () => {
             setTasks(tasks.filter((t) => !t.completed));
             update();
@@ -302,18 +332,19 @@ function App() {
   const remaining = tasks.filter((t) => !t.completed).length;
 
   return {
-    type: "main",
-    props: { class: "main" },
+    type: "section",
+    props: { class: "todoapp", id: "root" },
     children: [
-      // renderHeader(),
-      ...renderMainSection(tasks, visibleTasks, editing, filter),
+      renderHeader(),
+      renderMainSection(tasks, visibleTasks, editing, filter),
       ...(tasks.length > 0 ? [renderFooter(remaining, filter, tasks)] : [])
     ]
   };
 }
 
 // Initialize app
-const appContainer = document.getElementById("root");
+const appContainer = document.body;
 initRouter();
 onRouteChange(() => renderApp(App, appContainer));
 renderApp(App, appContainer);
+
