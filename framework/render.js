@@ -1,5 +1,6 @@
-
-import { createElement, updateProps, diffChildren, isSameType } from "./dff.js";
+import { diffChildren } from "./diffing.js";
+import { createElement } from "./createElement.js";
+import { isSameType, updateProps } from "./tools.js";
 
 let currentVDOM = null;
 let rootElement = null;

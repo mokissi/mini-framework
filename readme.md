@@ -41,7 +41,7 @@ It powers the UI updates of our mini-framework (similar to React’s reconciliat
 import { renderApp } from "./framework/render.js";
 import App from "./app.js"; // your root component
 
-const root = document.getElementById("app");
+const root = document.body;
 renderApp(App, root);
 ```
 
@@ -122,7 +122,7 @@ import { initRouter, onRouteChange, useRoute, navigate } from "./framework/route
 initRouter();
 
 onRouteChange(() => {
-  renderApp(App, document.getElementById("app"));
+  renderApp(App, document.body);
 });
 
 function App() {
