@@ -524,7 +524,6 @@ hr {
 .learn-bar>.learn {
     background-color: hsla(0, 0%, 100%, .6);
     border-radius: 5px;
-    left: -300px;
     padding: 10px;
     position: absolute;
     top: 8px;
@@ -535,7 +534,6 @@ hr {
 
 @media (min-width: 899px) {
     .learn-bar {
-        padding-left: 300px;
         width: auto
     }
 

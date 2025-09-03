@@ -12,7 +12,7 @@ const [getEditing, setEditing] = useState("editing", null);
 // Helper function to re-render
 function update() {
   const appContainer = document.body;
-  renderApp(App, appContainer);
+  renderApp(Root, appContainer);
 }
 
 // Header component - handles the title and new todo input
@@ -22,9 +22,9 @@ export function renderHeader() {
     props: { class: "header", "data-testid": "header" },
     children: [
       { type: "h1", props: {}, children: ["todos"] },
-      { 
-        type: "div", 
-        props: { class: "input-container" }, 
+      {
+        type: "div",
+        props: { class: "input-container" },
         children: [
           {
             type: "input",
@@ -71,41 +71,41 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
     props: { class: "main", "data-testid": "main" },
     children: [
       ...(tasks.length > 0 ? [
+        {
+          type: "div",
+          props: { class: "toggle-all-container" },
+          children: [
             {
-              type: "div",
-              props: { class: "toggle-all-container" },
-              children: [
-                {
-                  type: "input",
-                  props: {
-                    class: "toggle-all",
-                    type: "checkbox",
-                    id: "toggle-all",
-                    "data-testid": "toggle-all",
-                    checked: tasks.every((t) => t.completed),
-                    onchange: () => {
-                      const allDone = tasks.every((t) => t.completed);
-                      setTasks(tasks.map((t) => ({ ...t, completed: !allDone })));
-                      update();
-                    }
-                  },
-                  children: []
-                },
-                {
-                  type: "label",
-                  props: { class:"toggle-all-label",  for: "toggle-all" },
-                  children: ["Mark all as complete"]
+              type: "input",
+              props: {
+                class: "toggle-all",
+                type: "checkbox",
+                id: "toggle-all",
+                "data-testid": "toggle-all",
+                checked: tasks.every((t) => t.completed),
+                onchange: () => {
+                  const allDone = tasks.every((t) => t.completed);
+                  setTasks(tasks.map((t) => ({ ...t, completed: !allDone })));
+                  update();
                 }
-              ]
+              },
+              children: []
+            },
+            {
+              type: "label",
+              props: { class: "toggle-all-label", for: "toggle-all" },
+              children: ["Toggle All Input"]
             }
-          ] : []),
+          ]
+        }
+      ] : []),
       // Always render the ul element, even when empty
       {
         type: "ul",
         props: { class: "todo-list", "data-testid": "todo-list" },
         children: tasks.length === 0 ? [] : [
           // Toggle all checkbox and label (only show when there are tasks)
-          
+
           // Actual todo items
           ...visibleTasks.map((task, idx) => {
             const realIdx = tasks.indexOf(task);
@@ -219,7 +219,7 @@ function renderMainSection(tasks, visibleTasks, editing, filter) {
 function renderFooter(remaining, filter, tasks) {
   return {
     type: "footer",
-    props: { class: "footer" , "data-testid": "footer"},
+    props: { class: "footer", "data-testid": "footer" },
     children: [
       {
         type: "span",
@@ -230,7 +230,7 @@ function renderFooter(remaining, filter, tasks) {
       },
       {
         type: "ul",
-        props: { class: "filters" , "data-testid": "footer-navigation"},
+        props: { class: "filters", "data-testid": "footer-navigation" },
         children: [
           {
             type: "li",
@@ -300,7 +300,37 @@ function renderFooter(remaining, filter, tasks) {
     ]
   };
 }
-
+// Info Footer component - static info at the bottom
+function renderInfoFooter() {
+  return {
+    type: "footer",
+    props: { class: "footer" },
+    children: [
+      {
+        type: "p",
+        props: {},
+        children: ["Double-click to edit a todo"]
+      },
+      {
+        type: "p",
+        props: {},
+        children: ["Created by the Mboutaba's team"]
+      },
+      {
+        type: "p",
+        props: {},
+        children: [
+          "Similar to ",
+          {
+            type: "a",
+            props: { href: "http://todomvc.com" },
+            children: ["TodoMVC"]
+          }
+        ]
+      }
+    ]
+  };
+}
 // Main App function - now much cleaner and focused on coordination
 function App() {
   // --- Sync filter with route ---
@@ -337,14 +367,17 @@ function App() {
     children: [
       renderHeader(),
       renderMainSection(tasks, visibleTasks, editing, filter),
-      ...(tasks.length > 0 ? [renderFooter(remaining, filter, tasks)] : [])
+      ...(tasks.length > 0 ? [renderFooter(remaining, filter, tasks)] : []),
     ]
   };
 }
 
 // Initialize app
 const appContainer = document.body;
+function Root() {
+  return [App(), renderInfoFooter()];
+}
 initRouter();
-onRouteChange(() => renderApp(App, appContainer));
-renderApp(App, appContainer);
+onRouteChange(() => renderApp(Root, appContainer));
+renderApp(Root, appContainer);
 
