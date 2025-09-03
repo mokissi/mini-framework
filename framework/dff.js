@@ -8,11 +8,13 @@ export function createElement(vnode) {
   // Apply props
   for (const [key, value] of Object.entries(vnode.props || {})) {
     if (key === "key") continue;
-    
+    if (key === "ref" && typeof value === "function") {
+      // Call ref after element is created and children are attached
+      setTimeout(() => value(el), 0);
+      continue;
+    }
     if (key.startsWith("on")) {
-     
-     
-     el[key.toLowerCase()] = value;
+      el[key.toLowerCase()] = value;
     } else if (key === "class") {
       el.className = value || "";
     } else if (key === "id") {

@@ -17,6 +17,7 @@ function update() {
 
 // Header component - handles the title and new todo input
 export function renderHeader() {
+  let inputRef = (el) => el && el.focus();
   return {
     type: "header",
     props: { class: "header", "data-testid": "header" },
@@ -35,6 +36,7 @@ export function renderHeader() {
               "data-testid": "text-input",
               placeholder: "What needs to be done?",
               autofocus: true,
+              ref: inputRef,
               value: getInput(),
               oninput: (e) => setInput(e.target.value),
               onkeydown: (e) => {
